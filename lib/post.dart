@@ -1,63 +1,56 @@
 import 'package:flutter/material.dart';
-import 'models/post_model.dart';
-import 'services/post_service.dart';
+import 'package:provider/provider.dart';
+import 'provider/post_provider.dart';
 
-class PostPage extends StatefulWidget {
-  @override
-  State<PostPage> createState() => _PostPageState();
-}
-
-class _PostPageState extends State<PostPage> {
-  late Future<List<PostModel>> futurePosts;
-
-  @override
-  void initState() {
-    super.initState();
-    futurePosts = PostService.getPosts();
-  }
+class PostPage extends StatelessWidget {
+  const PostPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<PostProvider>(context);
+    final posts = provider.posts;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Daftar Postingan",
           style: TextStyle(
             color: Colors.white,
-            fontWeight: .bold,
+            fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.pinkAccent,
       ),
-      body: FutureBuilder<List<PostModel>>(
-        future: futurePosts,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final posts = snapshot.data!;
-            return ListView.builder(
-              itemCount: posts.length,
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                return Card(
-                  margin: const EdgeInsets.all(10),
-                  child: ListTile(
-                    title: Text(post.title),
-                    subtitle: Text(post.body),
-                    leading: CircleAvatar(child: Text(post.id.toString())),
-                  ),
-                );
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
+      body: Builder(
+        builder: (context) {
+          if (provider.isLoading) {
             return Center(child: CircularProgressIndicator());
           }
+          if (provider.error != null) {
+            return Center(child: Text('Error: ${provider.error}'));
+          }
+          if (posts.isEmpty) {
+            return Center(child: Text('Tidak ada postingan.'));
+          }
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return Card(
+                margin: const EdgeInsets.all(10),
+                child: ListTile(
+                  title: Text(post.title),
+                  subtitle: Text(post.body),
+                  leading: CircleAvatar(child: Text(post.id.toString())),
+                ),
+              );
+            },
+          );
         },
       ),
       floatingActionButton: Row(
-        mainAxisAlignment: .spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           FloatingActionButton(
             onPressed: () {

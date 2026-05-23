@@ -1,64 +1,70 @@
 import 'package:flutter/material.dart';
-import 'models/photo_model.dart';
-import 'services/photo_service.dart';
+import 'package:provider/provider.dart';
+import 'provider/photo_provider.dart';
 
-class PhotoPage extends StatefulWidget {
-  @override
-  State<PhotoPage> createState() => _PhotoPageState();
-}
-
-class _PhotoPageState extends State<PhotoPage> {
-  late Future<List<PhotoModel>> futurePhotos;
-
-  @override
-  void initState() {
-    super.initState();
-    futurePhotos = PhotoService.getPhotos();
-  }
+class PhotoPage extends StatelessWidget {
+  const PhotoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<PhotoProvider>(context);
+    final photos = provider.photos;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Daftar Foto",
           style: TextStyle(
             color: Colors.white,
-            fontWeight: .bold,
+            fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.pinkAccent,
         automaticallyImplyLeading: false,
       ),
-      body: FutureBuilder<List<PhotoModel>>(
-        future: futurePhotos,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final photos = snapshot.data!;
-            return ListView.builder(
-              itemCount: photos.length,
-              itemBuilder: (context, index) {
-                final photo = photos[index];
-                return Card(
-                  margin: const EdgeInsets.all(10),
-                  child: ListTile(
-                    title: Text(photo.author),
-                    subtitle: Image.network(photo.url),
-                    // leading: CircleAvatar(child: Text(photo.id.toString())),
-                  ),
-                );
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
+      body: Builder(
+        builder: (context) {
+          if (provider.isLoading) {
             return Center(child: CircularProgressIndicator());
           }
+          if (provider.error != null) {
+            return Center(child: Text('Error: ${provider.error}'));
+          }
+          if (photos.isEmpty) {
+            return Center(child: Text('Tidak ada foto.'));
+          }
+          return ListView.builder(
+            itemCount: photos.length.clamp(0, 10),
+            itemBuilder: (context, index) {
+              final photo = photos[index];
+              final imageUrl = index == 1
+                  ? 'https://picsum.photos/seed/pink-second/600/400'
+                  : photo.url;
+
+              return Card(
+                margin: const EdgeInsets.all(10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  tileColor: Colors.white,
+                  title: Text(photo.author),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(imageUrl),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
         },
       ),
       floatingActionButton: Row(
-        mainAxisAlignment: .spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           FloatingActionButton(
             onPressed: () {

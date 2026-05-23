@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'post.dart';
 import 'photos.dart';
+import 'provider/photo_provider.dart';
+import 'provider/post_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,19 +12,33 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pertemuan 8 - Consume API',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => PostPage(),
-        '/photos': (context) => PhotoPage(),
-      },
-      
-    
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PostProvider()),
+        ChangeNotifierProvider(create: (_) => PhotoProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Pertemuan 8 - Consume API',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.pinkAccent,
+            foregroundColor: Colors.white,
+          ),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: Colors.pinkAccent,
+            foregroundColor: Colors.white,
+          ),
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => PostPage(),
+          '/photos': (context) => PhotoPage(),
+        },
+      ),
     );
   }
 }
