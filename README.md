@@ -20,6 +20,9 @@ A Flutter app demonstrating API consumption using Provider state management.
 - `lib/models`: Data models for posts and photos
 - `lib/services`: HTTP service classes for API calls
 
+  ![Uploading Screenshot 2026-05-23 225049.png…]()
+<img width="1297" height="988" alt="Screenshot 2026-05-23 225042" src="https://github.com/user-attachments/assets/43710f7e-655f-4f22-bccc-1ae03943cde0" />
+
 ## How to Run
 
 1. Install Flutter and set up your environment.
